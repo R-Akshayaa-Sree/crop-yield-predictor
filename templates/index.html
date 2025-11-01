@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Crop Yield Prediction</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- General Dark Theme Styles --- */
+        body {
+            background: linear-gradient(135deg, #0c1a27 0%, #121212 100%);
+            color: #E0E0E0;
+            font-family: 'Roboto', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 0;
+        }
+        
+        .card-dark {
+            background: linear-gradient(145deg, #1E1E1E 0%, #252525 100%);
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .card-dark::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #4CAF50, #00BCD4);
+        }
+
+        /* --- Heading Styles --- */
+        .main-heading {
+            color: #fff;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            margin-bottom: 2rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .main-heading::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, #4CAF50, #00BCD4);
+            border-radius: 2px;
+        }
+        
+        .card-title {
+            color: #FAFAFA;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 0.75rem;
+        }
+        
+        .card-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: #4CAF50;
+            border-radius: 2px;
+        }
+
+        /* --- Form Control Styles --- */
+        .form-control-dark {
+            background-color: #2D2D2D;
+            border: 1px solid #444;
+            color: #FAFAFA;
+            transition: all 0.3s;
+            border-radius: 8px;
+            padding: 12px 15px;
+        }
+        
+        .form-control-dark:focus {
+            background-color: #3A3A3A;
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 0.25rem rgba(76, 175, 80, 0.25);
+            color: #FAFAFA;
+        }
+        
+        .form-floating > .form-control-dark:focus ~ label,
+        .form-floating > .form-control-dark:not(:placeholder-shown) ~ label {
+            color: #4CAF50;
+        }
+        
+        .form-label {
+            color: #E0E0E0; /* Changed from #B0B0B0 for better visibility */
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .form-label i {
+            margin-right: 8px;
+            color: #4CAF50;
+        }
+
+        /* --- Button Styles --- */
+        .btn-predict {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            border: none;
+            font-weight: 600;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            border-radius: 8px;
+            padding: 14px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-predict::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        .btn-predict:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 15px rgba(76, 175, 80, 0.4);
+        }
+        
+        .btn-predict:hover::before {
+            left: 100%;
+        }
+
+        /* --- Prediction Output Styles --- */
+        .prediction-box {
+            background: linear-gradient(135deg, #2D2D2D 0%, #1a1a1a 100%);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-top: 2rem;
+            border: 1px solid #4CAF50;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .prediction-box::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 40px;
+            height: 40px;
+            background: #4CAF50;
+            border-radius: 50%;
+            opacity: 0.1;
+        }
+        
+        .prediction-box::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: -20px;
+            width: 60px;
+            height: 60px;
+            background: #00BCD4;
+            border-radius: 50%;
+            opacity: 0.1;
+        }
+        
+        .prediction-label {
+            color: #E0E0E0; /* Changed from #B0B0B0 for better visibility */
+            font-size: 1.1rem;
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+        }
+        
+        .prediction-value {
+            color: #00BCD4;
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-shadow: 0 0 10px rgba(0, 188, 212, 0.5);
+            margin-top: 0.5rem;
+        }
+        
+        /* --- Animation for prediction result --- */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .fade-in-up {
+            animation: fadeInUp 0.5s ease-out;
+        }
+        
+        /* --- Loading animation --- */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(76, 175, 80, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid #4CAF50;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* --- Feature icons --- */
+        .feature-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(76, 175, 80, 0.1);
+            color: #4CAF50;
+            margin-right: 10px;
+        }
+        
+        /* --- Feature Cards --- */
+        .feature-card {
+            background: linear-gradient(145deg, #1E1E1E 0%, #252525 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
+            height: 100%;
+            border: 1px solid #333;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .feature-card h5 {
+            color: #FAFAFA;
+            margin-top: 1rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .feature-card p {
+            color: #CCCCCC; /* Changed from text-muted for better visibility */
+            line-height: 1.5;
+        }
+        
+        /* --- Responsive adjustments --- */
+        @media (max-width: 768px) {
+            .card-body {
+                padding: 2rem !important;
+            }
+            
+            .prediction-value {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <h1 class="text-center main-heading"><i class="fas fa-seedling me-2"></i>Crop Yield Prediction Per Country<i class="fas fa-globe-americas ms-2"></i></h1>
+        
+        <div class="card card-dark mx-auto" style="max-width: 900px;">
+            <div class="card-body p-4 p-md-5">
+                <h2 class="card-title">Enter Prediction Features</h2>
+                
+                <form id="prediction-form" action="/predict" method="post">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="number" class="form-control form-control-dark" id="Year" name="Year" value="2013" placeholder="Year" required>
+                                <label for="Year"><i class="fas fa-calendar-alt"></i> Year</label>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="number" step="any" class="form-control form-control-dark" id="average_rain_fall_mm_per_year" name="average_rain_fall_mm_per_year" placeholder="Average Rainfall" required>
+                                <label for="average_rain_fall_mm_per_year"><i class="fas fa-cloud-rain"></i> Average Rainfall (mm/year)</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="number" step="any" class="form-control form-control-dark" id="pesticides_tonnes" name="pesticides_tonnes" placeholder="Pesticides" required>
+                                <label for="pesticides_tonnes"><i class="fas fa-spray-can"></i> Pesticides (tonnes)</label>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="number" step="any" class="form-control form-control-dark" id="avg_temp" name="avg_temp" placeholder="Average Temperature" required>
+                                <label for="avg_temp"><i class="fas fa-thermometer-half"></i> Average Temperature (°C)</label>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="text" class="form-control form-control-dark" id="Area" name="Area" placeholder="Area" required>
+                                <label for="Area"><i class="fas fa-map-marker-alt"></i> Area (Country/Region)</label>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="text" class="form-control form-control-dark" id="Item" name="Item" placeholder="Item" required>
+                                <label for="Item"><i class="fas fa-leaf"></i> Item (Crop)</label>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12 mt-4">
+                            <button type="submit" class="btn btn-predict btn-lg w-100">
+                                <i class="fas fa-chart-line me-2"></i>PREDICT CROP YIELD
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                
+                <!-- Loading indicator -->
+                <div class="loading" id="loading-indicator">
+                    <div class="spinner"></div>
+                    <p class="text-light">Analyzing data and predicting yield...</p>
+                </div>
+                
+                {% if prediction %}
+                    <div class="text-center prediction-box fade-in-up">
+                        <p class="prediction-label"><i class="fas fa-chart-bar me-2"></i>✨ Predicted Crop Yield:</p>
+                        <h3 class="prediction-value">{{ prediction }}</h3>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Info section -->
+        <div class="row mt-5">
+            <div class="col-md-4 mb-4">
+                <div class="feature-card text-center">
+                    <div class="feature-icon mx-auto mb-3">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <h5 class="text-light">Data-Driven</h5>
+                    <p>Our predictions are based on comprehensive agricultural data analysis.</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="feature-card text-center">
+                    <div class="feature-icon mx-auto mb-3">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h5 class="text-light">Accurate Forecasts</h5>
+                    <p>Get reliable crop yield predictions to optimize your farming strategy.</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="feature-card text-center">
+                    <div class="feature-icon mx-auto mb-3">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <h5 class="text-light">Global Coverage</h5>
+                    <p>Predict yields for crops in countries and regions worldwide.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script>
+        // Form submission handling with loading indicator
+        document.getElementById('prediction-form').addEventListener('submit', function() {
+            document.getElementById('loading-indicator').style.display = 'block';
+        });
+        
+        // Add animation to prediction result when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            const predictionBox = document.querySelector('.prediction-box');
+            if (predictionBox) {
+                predictionBox.classList.add('fade-in-up');
+            }
+        });
+    </script>
+</body>
+</html>
